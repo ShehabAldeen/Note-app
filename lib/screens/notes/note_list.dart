@@ -1,13 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:new_todo/provider/auth_provider.dart';
+import 'package:new_todo/screens/profile/profile.dart';
+import 'package:new_todo/screens/profile/profile_utils.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../models/note.dart';
-import '../utils/database_helper.dart';
+import '../../models/note.dart';
+import '../../sqflite_utils/database_helper.dart';
 import 'note_details.dart';
 
 class NoteList extends StatefulWidget {
+  static const routeName = 'note_list';
+
   @override
   State<StatefulWidget> createState() {
     return NoteListState();
@@ -18,11 +25,15 @@ class NoteListState extends State<NoteList> {
   DatabaseHelper databaseHelper = DatabaseHelper();
   List<Note> noteList;
   int count = 0;
+  AuthProvider provider;
+  Size size;
 
   @override
   Widget build(BuildContext context) {
+    provider = Provider.of<AuthProvider>(context);
+    size = MediaQuery.of(context).size;
     if (noteList == null) {
-      noteList = List<Note>();
+      noteList = [];
       updateListView();
     }
 
@@ -39,6 +50,34 @@ class NoteListState extends State<NoteList> {
         tooltip: 'Add Note',
         child: Icon(Icons.add),
       ),
+      drawer: Drawer(
+          child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.only(top: 35.0, bottom: 35),
+            color: Colors.blue,
+            child: ListTile(
+              leading: InkWell(
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, Profile.routeName);
+                },
+                child: ProfileUtils.getProfile(context,
+                    width: size.width * .18,
+                    height: size.height * 0.9,
+                    paddingSize: 18,
+                    iconSize: 30),
+              ),
+              title: Text(
+                ProfileUtils.getDisplayNameOfCurrentAccount(context),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white),
+              ),
+            ),
+          )
+        ],
+      )),
     );
   }
 
@@ -50,7 +89,7 @@ class NoteListState extends State<NoteList> {
       itemBuilder: (BuildContext context, int position) {
         return Card(
           color: Colors.white,
-          elevation: 2.0,
+          elevation: 7.0,
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor:
@@ -72,7 +111,6 @@ class NoteListState extends State<NoteList> {
               },
             ),
             onTap: () {
-              debugPrint("ListTile Tapped");
               navigateToDetail(this.noteList[position], 'Edit Note');
             },
           ),
