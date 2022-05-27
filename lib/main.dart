@@ -6,6 +6,7 @@ import 'package:new_todo/provider/auth_provider.dart';
 import 'package:new_todo/screens/notes/note_list.dart';
 import 'package:new_todo/screens/profile/profile.dart';
 import 'package:new_todo/screens/profile/view_image.dart';
+import 'package:new_todo/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import 'authantication/login_screen.dart';
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         ViewProfileImage.routeName: (context) => ViewProfileImage(),
         ResetPassword.routeName: (context) => ResetPassword(),
       },
-      initialRoute: Registerscreen.routeName,
+      initialRoute: isUserHaveAccount(),
     );
   }
 }

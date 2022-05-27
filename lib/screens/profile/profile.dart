@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:new_todo/authantication/register.dart';
+import 'package:new_todo/models/user.dart' as AppUser;
 import 'package:new_todo/provider/auth_provider.dart';
 import 'package:new_todo/screens/notes/note_list.dart';
 import 'package:new_todo/screens/profile/profile_utils.dart';
@@ -41,6 +43,8 @@ class _ProfileState extends State<Profile> {
                 ProfileUtils.logOutMessage(context,
                     title: 'Please Confirm',
                     content: 'Are you sure you want to log out', onPressed: () {
+                  deleteUserFromFireAuth();
+                  deleteUser(provider.user);
                   currentAccountLogOut();
                 });
               },
@@ -156,6 +160,24 @@ class _ProfileState extends State<Profile> {
       provider.email = null;
     } on FirebaseAuthException catch (e) {
       showMessage(e.code, context);
+    }
+  }
+
+  void deleteUser(AppUser.User user) async {
+    CollectionReference collectionReference = AppUser.User.withConverter();
+    DocumentReference itemDec = collectionReference.doc(user.id);
+    await itemDec.delete();
+  }
+
+  void deleteUserFromFireAuth() async {
+    try {
+      await FirebaseAuth.instance.currentUser.delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        showMessage(
+            'The user must reauthenticate before this operation can be executed.',
+            context);
+      }
     }
   }
 

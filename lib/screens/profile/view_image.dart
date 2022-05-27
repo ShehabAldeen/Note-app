@@ -10,7 +10,6 @@ class ViewProfileImage extends StatefulWidget {
 
 class _ViewProfileImageState extends State<ViewProfileImage> {
   Size size;
-
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
