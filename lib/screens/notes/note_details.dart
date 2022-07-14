@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:new_todo/screens/notes/table_calender.dart';
-
 import '../../models/note.dart';
 import '../../sqflite_utils/database_helper.dart';
 
@@ -33,8 +32,6 @@ class NoteDetailState extends State<NoteDetail> {
 
   Size size;
 
-  DateTime selectedDate = DateTime.now();
-
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.titleMedium;
@@ -61,18 +58,8 @@ class NoteDetailState extends State<NoteDetail> {
             padding: EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
             child: ListView(
               children: <Widget>[
-                Calendar(),
                 // First element
-
                 ListTile(
-                  title: Center(
-                      child: Text(
-                          '${selectedDate.month}/${selectedDate.day}/${selectedDate.year}')),
-                  trailing: InkWell(
-                      onTap: () {
-                        showDateDialoge();
-                      },
-                      child: Icon(Icons.calendar_today_outlined)),
                   leading: DropdownButton(
                       items: _priorities.map((String dropDownStringItem) {
                         return DropdownMenuItem<String>(
@@ -246,17 +233,4 @@ class NoteDetailState extends State<NoteDetail> {
     showDialog(context: context, builder: (_) => alertDialog);
   }
 
-  void showDateDialoge() async {
-    var newSelectedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 28 * 365)),
-    );
-    if (newSelectedDate != null) {
-      selectedDate = newSelectedDate;
-
-      setState(() {});
-    }
-  }
 }

@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         ViewProfileImage.routeName: (context) => ViewProfileImage(),
         ResetPassword.routeName: (context) => ResetPassword(),
       },
-      initialRoute: isUserHaveAccount(),
+      initialRoute: NoteList.routeName,
     );
   }
 }

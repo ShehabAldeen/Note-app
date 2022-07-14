@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:new_todo/provider/auth_provider.dart';
@@ -7,7 +6,6 @@ import 'package:new_todo/screens/profile/profile.dart';
 import 'package:new_todo/screens/profile/profile_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
-
 import '../../models/note.dart';
 import '../../sqflite_utils/database_helper.dart';
 import 'note_details.dart';
@@ -39,7 +37,13 @@ class NoteListState extends State<NoteList> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notes'),
+        title: InkWell(
+            onTap: () async {
+              await databaseHelper.deleteDb();
+              debugPrint('red deleted');
+            },
+            child: Text('Notes')),
+
       ),
       body: getNoteListView(),
       floatingActionButton: FloatingActionButton(
@@ -75,7 +79,7 @@ class NoteListState extends State<NoteList> {
                     color: Colors.white),
               ),
             ),
-          )
+          ),
         ],
       )),
     );
@@ -100,7 +104,7 @@ class NoteListState extends State<NoteList> {
               this.noteList[position].title,
               style: titleStyle,
             ),
-            subtitle: Text(this.noteList[position].date),
+            subtitle: Text(noteList[position].date),
             trailing: GestureDetector(
               child: Icon(
                 Icons.delete,
@@ -111,7 +115,7 @@ class NoteListState extends State<NoteList> {
               },
             ),
             onTap: () {
-              navigateToDetail(this.noteList[position], 'Edit Note');
+              navigateToDetail(noteList[position], 'Edit Note');
             },
           ),
         );
@@ -163,10 +167,8 @@ class NoteListState extends State<NoteList> {
   }
 
   void navigateToDetail(Note note, String title) async {
-    bool result =
-        await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return NoteDetail(note, title);
-    }));
+    bool result = await Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => NoteDetail(note, title)));
 
     if (result == true) {
       updateListView();
