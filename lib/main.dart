@@ -6,7 +6,6 @@ import 'package:new_todo/provider/auth_provider.dart';
 import 'package:new_todo/screens/notes/note_list.dart';
 import 'package:new_todo/screens/profile/profile.dart';
 import 'package:new_todo/screens/profile/view_image.dart';
-import 'package:new_todo/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import 'authantication/login_screen.dart';
@@ -29,12 +28,12 @@ class MyApp extends StatelessWidget {
       routes: {
         Registerscreen.routeName: (context) => Registerscreen(),
         LoginScreen.routeName: (context) => LoginScreen(),
-        NoteList.routeName: (context) => NoteList(),
+        NoteList.noteListRoute: (context) => NoteList(),
         Profile.routeName: (context) => Profile(),
         ViewProfileImage.routeName: (context) => ViewProfileImage(),
         ResetPassword.routeName: (context) => ResetPassword(),
       },
-      initialRoute: NoteList.routeName,
+      initialRoute: NoteList.noteListRoute,
     );
   }
 }

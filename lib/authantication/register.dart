@@ -197,7 +197,7 @@ class _RegisterscreenState extends State<Registerscreen> {
           provider.addUserToProvider(myUser);
           Navigator.pushNamedAndRemoveUntil(
             context,
-            NoteList.routeName,
+            NoteList.noteListRoute,
             (route) => false,
           );
           showMessage('user registered successfully', context);

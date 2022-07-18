@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:new_todo/screens/notes/table_calender.dart';
+
 import '../../models/note.dart';
 import '../../sqflite_utils/database_helper.dart';
 
@@ -22,7 +22,6 @@ class NoteDetailState extends State<NoteDetail> {
   DatabaseHelper helper = DatabaseHelper();
 
   String appBarTitle;
-
   Note note;
 
   TextEditingController titleController = TextEditingController();
@@ -30,12 +29,10 @@ class NoteDetailState extends State<NoteDetail> {
 
   NoteDetailState(this.note, this.appBarTitle);
 
-  Size size;
-
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(context).textTheme.titleMedium;
-    size = MediaQuery.of(context).size;
+    TextStyle textStyle = Theme.of(context).textTheme.bodyText1;
+
     titleController.text = note.title;
     descriptionController.text = note.description;
 
@@ -60,7 +57,7 @@ class NoteDetailState extends State<NoteDetail> {
               children: <Widget>[
                 // First element
                 ListTile(
-                  leading: DropdownButton(
+                  title: DropdownButton(
                       items: _priorities.map((String dropDownStringItem) {
                         return DropdownMenuItem<String>(
                           value: dropDownStringItem,
@@ -71,18 +68,47 @@ class NoteDetailState extends State<NoteDetail> {
                       value: getPriorityAsString(note.priority),
                       onChanged: (valueSelectedByUser) {
                         setState(() {
+                          debugPrint('User selected $valueSelectedByUser');
                           updatePriorityAsInt(valueSelectedByUser);
                         });
                       }),
                 ),
 
                 // Second Element
-                customTextField(
-                    'title', textStyle, titleController, updateTitle, 1),
+                Padding(
+                  padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                  child: TextField(
+                    controller: titleController,
+                    style: textStyle,
+                    onChanged: (value) {
+                      debugPrint('Something changed in Title Text Field');
+                      updateTitle();
+                    },
+                    decoration: InputDecoration(
+                        labelText: 'Title',
+                        labelStyle: textStyle,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0))),
+                  ),
+                ),
 
                 // Third Element
-                customTextField('description', textStyle, descriptionController,
-                    updateDescription, 4),
+                Padding(
+                  padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                  child: TextField(
+                    controller: descriptionController,
+                    style: textStyle,
+                    onChanged: (value) {
+                      debugPrint('Something changed in Description Text Field');
+                      updateDescription();
+                    },
+                    decoration: InputDecoration(
+                        labelText: 'Description',
+                        labelStyle: textStyle,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0))),
+                  ),
+                ),
 
                 // Fourth Element
                 Padding(
@@ -90,13 +116,39 @@ class NoteDetailState extends State<NoteDetail> {
                   child: Row(
                     children: <Widget>[
                       Expanded(
-                        child: customButton('Save', _save),
+                        child: RaisedButton(
+                          color: Theme.of(context).primaryColorDark,
+                          textColor: Theme.of(context).primaryColorLight,
+                          child: Text(
+                            'Save',
+                            textScaleFactor: 1.5,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              debugPrint("Save button clicked");
+                              _save();
+                            });
+                          },
+                        ),
                       ),
                       Container(
                         width: 5.0,
                       ),
                       Expanded(
-                        child: customButton('Delete', _delete),
+                        child: RaisedButton(
+                          color: Theme.of(context).primaryColorDark,
+                          textColor: Theme.of(context).primaryColorLight,
+                          child: Text(
+                            'Delete',
+                            textScaleFactor: 1.5,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              debugPrint("Delete button clicked");
+                              _delete();
+                            });
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -105,42 +157,6 @@ class NoteDetailState extends State<NoteDetail> {
             ),
           ),
         ));
-  }
-
-  Padding customTextField(String labelText, TextStyle textStyle,
-      TextEditingController textEditingController, Function f, int maxLine) {
-    return Padding(
-      padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-      child: TextField(
-        controller: textEditingController,
-        maxLines: maxLine,
-        style: textStyle,
-        onChanged: (value) {
-          f();
-        },
-        decoration: InputDecoration(
-            labelText: labelText,
-            labelStyle: textStyle,
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(5.0))),
-      ),
-    );
-  }
-
-  RaisedButton customButton(String text, Function f) {
-    return RaisedButton(
-      color: Theme.of(context).primaryColorDark,
-      textColor: Theme.of(context).primaryColorLight,
-      child: Text(
-        text,
-        textScaleFactor: 1.5,
-      ),
-      onPressed: () {
-        setState(() {
-          f();
-        });
-      },
-    );
   }
 
   void moveToLastScreen() {
@@ -186,8 +202,8 @@ class NoteDetailState extends State<NoteDetail> {
   // Save data to database
   void _save() async {
     moveToLastScreen();
-    note.date = DateFormat.yMMMd().format(DateTime.now());
 
+    note.date = DateFormat.yMMMd().format(DateTime.now());
     int result;
     if (note.id != null) {
       // Case 1: Update operation

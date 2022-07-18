@@ -151,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (userCredential.user != null) {
         var fireStoreUser = await getUserById(userCredential.user.uid);
         provider.addUserToProvider(fireStoreUser);
-        Navigator.pushNamed(context, NoteList.routeName);
+        Navigator.pushNamed(context, NoteList.noteListRoute);
       }
     } on FirebaseAuthException catch (e) {
       showMessage(e.code, context);

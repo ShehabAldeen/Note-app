@@ -1,17 +1,14 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:new_todo/provider/auth_provider.dart';
-import 'package:new_todo/screens/profile/profile.dart';
-import 'package:new_todo/screens/profile/profile_utils.dart';
-import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
+
 import '../../models/note.dart';
 import '../../sqflite_utils/database_helper.dart';
 import 'note_details.dart';
 
 class NoteList extends StatefulWidget {
-  static const routeName = 'note_list';
+  static const noteListRoute = 'note_list';
 
   @override
   State<StatefulWidget> createState() {
@@ -23,27 +20,17 @@ class NoteListState extends State<NoteList> {
   DatabaseHelper databaseHelper = DatabaseHelper();
   List<Note> noteList;
   int count = 0;
-  AuthProvider provider;
-  Size size;
 
   @override
   Widget build(BuildContext context) {
-    provider = Provider.of<AuthProvider>(context);
-    size = MediaQuery.of(context).size;
     if (noteList == null) {
-      noteList = [];
+      noteList = List<Note>();
       updateListView();
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: InkWell(
-            onTap: () async {
-              await databaseHelper.deleteDb();
-              debugPrint('red deleted');
-            },
-            child: Text('Notes')),
-
+        title: Text('Notes'),
       ),
       body: getNoteListView(),
       floatingActionButton: FloatingActionButton(
@@ -54,46 +41,18 @@ class NoteListState extends State<NoteList> {
         tooltip: 'Add Note',
         child: Icon(Icons.add),
       ),
-      drawer: Drawer(
-          child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.only(top: 35.0, bottom: 35),
-            color: Colors.blue,
-            child: ListTile(
-              leading: InkWell(
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, Profile.routeName);
-                },
-                child: ProfileUtils.getProfile(context,
-                    width: size.width * .18,
-                    height: size.height * 0.9,
-                    paddingSize: 18,
-                    iconSize: 30),
-              ),
-              title: Text(
-                ProfileUtils.getDisplayNameOfCurrentAccount(context),
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white),
-              ),
-            ),
-          ),
-        ],
-      )),
     );
   }
 
   ListView getNoteListView() {
-    TextStyle titleStyle = Theme.of(context).textTheme.titleMedium;
+    TextStyle titleStyle = Theme.of(context).textTheme.bodyText1;
 
     return ListView.builder(
       itemCount: count,
       itemBuilder: (BuildContext context, int position) {
         return Card(
           color: Colors.white,
-          elevation: 7.0,
+          elevation: 2.0,
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor:
@@ -104,7 +63,7 @@ class NoteListState extends State<NoteList> {
               this.noteList[position].title,
               style: titleStyle,
             ),
-            subtitle: Text(noteList[position].date),
+            subtitle: Text(this.noteList[position].date),
             trailing: GestureDetector(
               child: Icon(
                 Icons.delete,
@@ -115,7 +74,8 @@ class NoteListState extends State<NoteList> {
               },
             ),
             onTap: () {
-              navigateToDetail(noteList[position], 'Edit Note');
+              debugPrint("ListTile Tapped");
+              navigateToDetail(this.noteList[position], 'Edit Note');
             },
           ),
         );
@@ -167,8 +127,10 @@ class NoteListState extends State<NoteList> {
   }
 
   void navigateToDetail(Note note, String title) async {
-    bool result = await Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (_) => NoteDetail(note, title)));
+    bool result =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return NoteDetail(note, title);
+    }));
 
     if (result == true) {
       updateListView();

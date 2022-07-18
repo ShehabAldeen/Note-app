@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:path/path.dart';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -15,6 +15,7 @@ class DatabaseHelper {
   String colTitle = 'title';
   String colDescription = 'description';
   String colPriority = 'priority';
+  String colDate = 'date';
 
   DatabaseHelper._createInstance(); // Named constructor to create instance of DatabaseHelper
 
@@ -40,28 +41,21 @@ class DatabaseHelper {
 
     // Open/create the database at a given path
     var notesDatabase =
-    await openDatabase(path, version: 3,
-        onCreate: _createDb);
+        await openDatabase(path, version: 1, onCreate: _createDb);
     return notesDatabase;
   }
-
-  /*_onUpgrade(Database db,int oldVersion, int newVersion){
-    db.execute("DELETE FROM `notes` WHERE ");
-
-    print('_onUpgrade-----------');
-  }*/
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
         'CREATE TABLE $noteTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, '
-            '$colDescription TEXT, $colPriority INTEGER)');
-    print('_onCreate------------');
+        '$colDescription TEXT, $colPriority INTEGER, $colDate TEXT)');
   }
 
   // Fetch Operation: Get all note objects from database
   Future<List<Map<String, dynamic>>> getNoteMapList() async {
-    Database db = await database;
+    Database db = await this.database;
 
+//		var result = await db.rawQuery('SELECT * FROM $noteTable order by $colPriority ASC');
     var result = await db.query(noteTable, orderBy: '$colPriority ASC');
     return result;
   }
@@ -109,21 +103,8 @@ class DatabaseHelper {
     for (int i = 0; i < count; i++) {
       noteList.add(Note.fromMapObject(noteMapList[i]));
     }
+
     return noteList;
   }
 
-  readData(String sql) async {
-    Database db = await database;
-    List<Map> response = await db.rawQuery(sql);
-    return response;
-  }
-
-  deleteDb() async {
-    String databasePath = await getDatabasesPath();
-    String path = join(databasePath, "notes.db");
-    await deleteDatabase(path);
-  }
-
 }
-
-
