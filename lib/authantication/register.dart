@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:new_todo/authantication/login_screen.dart';
+import 'package:new_todo/main.dart';
 import 'package:new_todo/models/user.dart' as AppUser;
 import 'package:new_todo/provider/auth_provider.dart';
 import 'package:new_todo/screens/notes/note_list.dart';
@@ -128,6 +130,7 @@ class _RegisterscreenState extends State<Registerscreen> {
                   ),
                   TextFormField(
                     obscureText: true,
+                    cursorColor: Colors.black,
                     decoration: InputDecoration(
                       labelText: 'Password',
                     ),
@@ -167,6 +170,32 @@ class _RegisterscreenState extends State<Registerscreen> {
                     height: MediaQuery.of(context).size.height * 0.03,
                   ),
                   customSignInButton("Sign up with Google", Buttons.Google),
+                  const SizedBox(
+                    height: 14,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already hava an account?',
+                        style: TextStyle(fontSize: 18, color: Colors.blue),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            LoginScreen.routeName,
+                            (route) => false,
+                          );
+                        },
+                        child: Text('Log in',
+                            style: const TextStyle(
+                                decoration: TextDecoration.underline,
+                                fontSize: 18,
+                                color: Colors.blue)),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -193,8 +222,10 @@ class _RegisterscreenState extends State<Registerscreen> {
             userName: userName,
             email: email,
             password: password);
-        addUserToFireStore(myUser).then((value) async {
-          provider.addUserToProvider(myUser);
+        addUserToFirebaseAuth(myUser).then((value) async {
+          prefs.setString('imagePath', '');
+          prefs.setString('photoUrl', '');
+          provider.login(userName, '', email);
           Navigator.pushNamedAndRemoveUntil(
             context,
             NoteList.noteListRoute,
@@ -222,6 +253,7 @@ class _RegisterscreenState extends State<Registerscreen> {
         idToken: googleSignInAuthentication.idToken,
       );
       await _auth.signInWithCredential(credential);
+      prefs.setString('imagePath', '');
       provider.login(googleSignInAccount.displayName,
           googleSignInAccount.photoUrl, googleSignInAccount.email);
     } on FirebaseAuthException catch (e) {

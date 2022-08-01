@@ -5,14 +5,17 @@ import 'package:new_todo/authantication/reset_password.dart';
 import 'package:new_todo/provider/auth_provider.dart';
 import 'package:new_todo/screens/notes/note_list.dart';
 import 'package:new_todo/screens/profile/profile.dart';
-import 'package:new_todo/screens/profile/view_image.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'authantication/login_screen.dart';
+
+SharedPreferences prefs;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  prefs = await SharedPreferences.getInstance();
   runApp(ChangeNotifierProvider<AuthProvider>(
       create: (buildContext) => AuthProvider(), child: MyApp()));
 }
@@ -30,10 +33,11 @@ class MyApp extends StatelessWidget {
         LoginScreen.routeName: (context) => LoginScreen(),
         NoteList.noteListRoute: (context) => NoteList(),
         Profile.routeName: (context) => Profile(),
-        ViewProfileImage.routeName: (context) => ViewProfileImage(),
         ResetPassword.routeName: (context) => ResetPassword(),
       },
-      initialRoute: NoteList.noteListRoute,
+      initialRoute: prefs.getString('email') != ''
+          ? NoteList.noteListRoute
+          : Registerscreen.routeName,
     );
   }
 }

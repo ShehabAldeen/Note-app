@@ -65,7 +65,7 @@ Padding customPaddingOfElevatedButton({String buttonText}) {
   );
 }
 
-Future<void> addUserToFireStore(AppUser.User user) {
+Future<void> addUserToFirebaseAuth(AppUser.User user) {
   return AppUser.User.withConverter().doc(user.id).set(user);
 }
 
@@ -103,4 +103,27 @@ Future<AppUser.User> getUserById(String id) async {
   DocumentSnapshot<AppUser.User> result =
       await AppUser.User.withConverter().doc(id).get();
   return result.data();
+}
+
+void logOutMessage(BuildContext context,
+    {String title, String content, Function() onPressed}) {
+  showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            // The "Yes" button
+            TextButton(onPressed: onPressed, child: const Text('OK')),
+            TextButton(
+                onPressed: () {
+                  // Close the dialog
+                  Navigator.of(context).pop();
+                },
+                child: const Text('CANCEL'))
+          ],
+        );
+      });
 }

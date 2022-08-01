@@ -1,10 +1,16 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../main.dart';
 import '../../models/note.dart';
+import '../../provider/auth_provider.dart';
 import '../../sqflite_utils/database_helper.dart';
+import '../profile/profile.dart';
 import 'note_details.dart';
 
 class NoteList extends StatefulWidget {
@@ -20,9 +26,12 @@ class NoteListState extends State<NoteList> {
   DatabaseHelper databaseHelper = DatabaseHelper();
   List<Note> noteList;
   int count = 0;
+  AuthProvider provider;
 
   @override
   Widget build(BuildContext context) {
+    provider = Provider.of<AuthProvider>(context);
+
     if (noteList == null) {
       noteList = List<Note>();
       updateListView();
@@ -40,6 +49,69 @@ class NoteListState extends State<NoteList> {
         },
         tooltip: 'Add Note',
         child: Icon(Icons.add),
+      ),
+      drawer: Drawer(
+        backgroundColor: Theme.of(context).primaryColor,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, Profile.routeName);
+                },
+                child: ClipOval(
+                  child: SizedBox(
+                      height: 145,
+                      width: 145,
+                      child: prefs.getString('photoUrl') != ''
+                          ? Image.network(
+                              prefs.getString('photoUrl') ?? '',
+                              fit: BoxFit.cover,
+                            )
+                          : prefs.getString('imagePath') != ''
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                        image: FileImage(File(
+                                            prefs.getString('imagePath') ??
+                                                '')),
+                                        fit: BoxFit.cover),
+                                  ),
+                                )
+                              : Container(
+                                  decoration: BoxDecoration(color: Colors.grey),
+                                  child: const Icon(
+                                    Icons.person,
+                                    size: 45,
+                                  ))),
+                ),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Text(
+                prefs.getString('displayName') ?? '',
+                style: const TextStyle(
+                    overflow: TextOverflow.ellipsis,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Colors.white),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Text(
+                prefs.getString('email') ?? '',
+                style: const TextStyle(
+                    overflow: TextOverflow.ellipsis,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Colors.white),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

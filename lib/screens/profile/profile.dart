@@ -8,9 +8,10 @@ import 'package:new_todo/models/user.dart' as AppUser;
 import 'package:new_todo/provider/auth_provider.dart';
 import 'package:new_todo/screens/notes/note_list.dart';
 import 'package:new_todo/screens/profile/profile_utils.dart';
-import 'package:new_todo/screens/profile/view_image.dart';
+import 'package:new_todo/screens/widgets/profile/image_profile.dart';
 import 'package:provider/provider.dart';
 
+import '../../main.dart';
 import '../../utils/utils.dart';
 
 class Profile extends StatefulWidget {
@@ -30,25 +31,29 @@ class _ProfileState extends State<Profile> {
     size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
-          title: Text('Profile'),
+          title: const Text('Profile'),
           leading: InkWell(
               onTap: () {
                 Navigator.pushReplacement(
                     context, MaterialPageRoute(builder: (_) => NoteList()));
               },
-              child: Icon(Icons.arrow_back_ios)),
+              child: const Icon(Icons.arrow_back_ios)),
           actions: [
             GestureDetector(
               onTap: () async {
-                ProfileUtils.logOutMessage(context,
+                ProfileUtils().logOutMessage(context,
                     title: 'Please Confirm',
                     content: 'Are you sure you want to log out', onPressed: () {
-                  deleteUserFromFireAuth();
-                  deleteUser(provider.user);
+                  // deleteUserFromFireAuth();
+                  // deleteUser(provider.user);
                   currentAccountLogOut();
+                  prefs.setString('email', '');
+                  prefs.setString('displayName', '');
+                  prefs.setString('photoUrl', '');
+                  prefs.setString('imagePath', '');
                 });
               },
-              child: Padding(
+              child: const Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
                   'Log out',
@@ -63,42 +68,10 @@ class _ProfileState extends State<Profile> {
           child: Column(
             children: [
               SizedBox(height: size.height * 0.04),
-              Stack(
-                children: [
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, ViewProfileImage.routeName);
-                      },
-                      child: ProfileUtils.getProfile(context,
-                          width: size.width * .48,
-                          height: size.height * .24,
-                          iconSize: 50,
-                          paddingSize: 18)),
-                  Positioned(
-                      top: size.height * .17,
-                      left: size.width * .33,
-                      bottom: 0,
-                      right: 0,
-                      child: InkWell(
-                        onTap: () {
-                          ProfileUtils.bottomSheet(context);
-                        },
-                        child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.teal,
-                                borderRadius: BorderRadius.circular(70)),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              size: 28,
-                              color: Colors.white,
-                            )),
-                      )),
-                ],
-              ),
+              ImageProfile(),
               SizedBox(height: size.height * 0.04),
               ListTile(
-                leading: Icon(
+                leading: const Icon(
                   Icons.person,
                   size: 28,
                 ),
@@ -107,12 +80,12 @@ class _ProfileState extends State<Profile> {
                   style: TextStyle(color: Colors.grey.shade700, fontSize: 20),
                 ),
                 subtitle: Text(
-                  ProfileUtils.getDisplayNameOfCurrentAccount(context),
-                  style: TextStyle(color: Colors.black, fontSize: 17),
+                  prefs.getString('displayName'),
+                  style: const TextStyle(color: Colors.black, fontSize: 17),
                 ),
               ),
               ListTile(
-                leading: Icon(
+                leading: const Icon(
                   Icons.email,
                   size: 28,
                 ),
@@ -121,8 +94,8 @@ class _ProfileState extends State<Profile> {
                   style: TextStyle(color: Colors.grey.shade700, fontSize: 20),
                 ),
                 subtitle: Text(
-                  ProfileUtils.getEmailOfCurrentAccount(context),
-                  style: TextStyle(color: Colors.black, fontSize: 17),
+                  prefs.getString('email'),
+                  style: const TextStyle(color: Colors.black, fontSize: 17),
                 ),
               ),
             ],
@@ -134,7 +107,6 @@ class _ProfileState extends State<Profile> {
     try {
       await FirebaseAuth.instance.signOut();
       navigatorThenMessage();
-      provider.user = null;
     } on FirebaseAuthException catch (e) {
       showMessage(e.message, context);
       throw e;
@@ -157,7 +129,6 @@ class _ProfileState extends State<Profile> {
       }
       await FirebaseAuth.instance.signOut();
       navigatorThenMessage();
-      provider.email = null;
     } on FirebaseAuthException catch (e) {
       showMessage(e.code, context);
     }
